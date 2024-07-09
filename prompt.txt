@@ -1,0 +1,21 @@
+Our goal is to create another project as described here:
+
+https://github.com/DataTalksClub/mlops-zoomcamp/tree/main/07-project
+
+please read the description of this example project:
+
+https://github.com/sagar118/text-analyzer
+
+and this one:
+
+https://github.com/HoracioSoldman/batch-processing-on-aws
+
+and help me with development and documentation of mine.
+The aim of the project is to predict amount of bags that will be required to pack orders. 
+We do not know the exact volume of products, but we know categories (Grocery, Fresh meat, Wine, Deep frozen products, etc), amount and weight.
+So we have 3 types of bags: normal, bags for cold products, and bags for deep frozen products. 
+Every day the orders are packed and delivered, and the real data about  how many bags of which type was required to pack orders is added to database.
+And we need to predict the amount bags for orders scheduled to delivery on the next day, because this amount is required to plan logistics and to understand amount and volume of cars required.
+
+I plan to use AWS, MLFlow, Pytest, 
+

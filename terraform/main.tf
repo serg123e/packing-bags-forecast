@@ -1,6 +1,6 @@
 provider "aws" {
   profile = "serg123e"
-  region  = "eu-central-1"  # Change to your preferred region
+  region  = "eu-central-1"
 }
 
 # Create a VPC
@@ -51,7 +51,7 @@ resource "aws_route_table_association" "b" {
 resource "aws_subnet" "subnet_a" {
   vpc_id     = aws_vpc.main.id
   cidr_block = "10.0.1.0/24"
-  availability_zone = "eu-central-1a"  # Change to your preferred AZ
+  availability_zone = "eu-central-1a"
   tags = {
     Name = "subnet-a"
   }
@@ -60,7 +60,7 @@ resource "aws_subnet" "subnet_a" {
 resource "aws_subnet" "subnet_b" {
   vpc_id     = aws_vpc.main.id
   cidr_block = "10.0.2.0/24"
-  availability_zone = "eu-central-1b"  # Change to your preferred AZ
+  availability_zone = "eu-central-1b"
   tags = {
     Name = "subnet-b"
   }
@@ -89,16 +89,16 @@ resource "aws_security_group" "rds_sg" {
   }
 }
 
-# Create RDS instance for MLFlow
-resource "aws_db_instance" "mlflow_db" {
+# Create a single RDS instance
+resource "aws_db_instance" "main_db" {
   allocated_storage    = 20
   storage_type         = "gp2"
   engine               = "postgres"
   engine_version       = "16.3"
   instance_class       = "db.t3.micro"
-  db_name              = "mlflowdb"
-  username             = "mlflowadmin"
-  password             = "mlflowpassword"
+  db_name              = "main"  # Default database name
+  username             = "admin"
+  password             = "adminpassword"
   parameter_group_name = "default.postgres16"
   skip_final_snapshot  = true
   publicly_accessible  = true
@@ -106,28 +106,7 @@ resource "aws_db_instance" "mlflow_db" {
   db_subnet_group_name = aws_db_subnet_group.main.name
 
   tags = {
-    Name = "mlflow-database"
-  }
-}
-
-# Create RDS instance for Grafana
-resource "aws_db_instance" "grafana_db" {
-  allocated_storage    = 20
-  storage_type         = "gp2"
-  engine               = "postgres"
-  engine_version       = "16.3"
-  instance_class       = "db.t3.micro"
-  db_name              = "grafanadb"
-  username             = "grafanaadmin"
-  password             = "grafanapassword"
-  parameter_group_name = "default.postgres16"
-  skip_final_snapshot  = true
-  publicly_accessible  = true
-  vpc_security_group_ids = [aws_security_group.rds_sg.id]
-  db_subnet_group_name = aws_db_subnet_group.main.name
-
-  tags = {
-    Name = "grafana-database"
+    Name = "main-database"
   }
 }
 
@@ -138,5 +117,18 @@ resource "aws_db_subnet_group" "main" {
 
   tags = {
     Name = "main-subnet-group"
+  }
+}
+
+
+# Create additional databases
+resource "null_resource" "create_databases" {
+  depends_on = [aws_db_instance.main_db]
+
+  provisioner "local-exec" {
+    command = <<EOT
+PGPASSWORD="adminpassword" psql -h ${aws_db_instance.main_db.endpoint} -U admin -d postgres -c "CREATE DATABASE mlflowdb;"
+PGPASSWORD="adminpassword" psql -h ${aws_db_instance.main_db.endpoint} -U admin -d postgres -c "CREATE DATABASE grafanadb;"
+EOT
   }
 }

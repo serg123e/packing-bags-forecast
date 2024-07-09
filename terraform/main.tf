@@ -1,10 +1,13 @@
 provider "aws" {
-  region = "us-west-2"  # Change to your preferred region
+  profile = "serg123e"
+  region  = "eu-central-1"  # Change to your preferred region
 }
 
 # Create a VPC
 resource "aws_vpc" "main" {
   cidr_block = "10.0.0.0/16"
+  enable_dns_support = true
+  enable_dns_hostnames = true
   tags = {
     Name = "main-vpc"
   }
@@ -48,7 +51,7 @@ resource "aws_route_table_association" "b" {
 resource "aws_subnet" "subnet_a" {
   vpc_id     = aws_vpc.main.id
   cidr_block = "10.0.1.0/24"
-  availability_zone = "us-west-2a"  # Change to your preferred AZ
+  availability_zone = "eu-central-1a"  # Change to your preferred AZ
   tags = {
     Name = "subnet-a"
   }
@@ -57,7 +60,7 @@ resource "aws_subnet" "subnet_a" {
 resource "aws_subnet" "subnet_b" {
   vpc_id     = aws_vpc.main.id
   cidr_block = "10.0.2.0/24"
-  availability_zone = "us-west-2b"  # Change to your preferred AZ
+  availability_zone = "eu-central-1b"  # Change to your preferred AZ
   tags = {
     Name = "subnet-b"
   }
@@ -91,12 +94,12 @@ resource "aws_db_instance" "mlflow_db" {
   allocated_storage    = 20
   storage_type         = "gp2"
   engine               = "postgres"
-  engine_version       = "12.5"
+  engine_version       = "16.3"
   instance_class       = "db.t3.micro"
   db_name              = "mlflowdb"
   username             = "mlflowadmin"
   password             = "mlflowpassword"
-  parameter_group_name = "default.postgres12"
+  parameter_group_name = "default.postgres16"
   skip_final_snapshot  = true
   publicly_accessible  = true
   vpc_security_group_ids = [aws_security_group.rds_sg.id]
@@ -112,12 +115,12 @@ resource "aws_db_instance" "grafana_db" {
   allocated_storage    = 20
   storage_type         = "gp2"
   engine               = "postgres"
-  engine_version       = "12.5"
+  engine_version       = "16.3"
   instance_class       = "db.t3.micro"
   db_name              = "grafanadb"
   username             = "grafanaadmin"
   password             = "grafanapassword"
-  parameter_group_name = "default.postgres12"
+  parameter_group_name = "default.postgres16"
   skip_final_snapshot  = true
   publicly_accessible  = true
   vpc_security_group_ids = [aws_security_group.rds_sg.id]

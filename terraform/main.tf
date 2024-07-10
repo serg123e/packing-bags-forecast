@@ -97,8 +97,8 @@ resource "aws_db_instance" "main_db" {
   engine_version       = "16.3"
   instance_class       = "db.t3.micro"
   db_name              = "main"  # Default database name
-  username             = "masteruser"
-  password             = "masterpassword"
+  username             = var.db_username
+  password             = var.db_password
   parameter_group_name = "default.postgres16"
   skip_final_snapshot  = true
   publicly_accessible  = true
@@ -126,8 +126,9 @@ resource "null_resource" "create_databases" {
 
   provisioner "local-exec" {
     command = <<EOT
-PGPASSWORD="masterpassword" psql -h ${aws_db_instance.main_db.endpoint} -U masteruser -d postgres -c "CREATE DATABASE mlflowdb;"
-PGPASSWORD="masterpassword" psql -h ${aws_db_instance.main_db.endpoint} -U masteruser -d postgres -c "CREATE DATABASE grafanadb;"
+PGPASSWORD="${var.db_password}" psql -h ${aws_db_instance.main_db.endpoint} -U ${var.db_username} -d postgres -c "CREATE DATABASE mlflowdb;"
+PGPASSWORD="${var.db_password}" psql -h ${aws_db_instance.main_db.endpoint} -U ${var.db_username} -d postgres -c "CREATE DATABASE grafanadb;"
+PGPASSWORD="${var.db_password}" psql -h ${aws_db_instance.main_db.endpoint} -U ${var.db_username} -d postgres -c "CREATE DATABASE data_warehouse;"
 EOT
   }
 }

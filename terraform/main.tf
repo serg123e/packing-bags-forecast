@@ -97,8 +97,8 @@ resource "aws_db_instance" "main_db" {
   engine_version       = "16.3"
   instance_class       = "db.t3.micro"
   db_name              = "main"  # Default database name
-  username             = "admin"
-  password             = "adminpassword"
+  username             = "masteruser"
+  password             = "masterpassword"
   parameter_group_name = "default.postgres16"
   skip_final_snapshot  = true
   publicly_accessible  = true
@@ -120,15 +120,14 @@ resource "aws_db_subnet_group" "main" {
   }
 }
 
-
 # Create additional databases
 resource "null_resource" "create_databases" {
   depends_on = [aws_db_instance.main_db]
 
   provisioner "local-exec" {
     command = <<EOT
-PGPASSWORD="adminpassword" psql -h ${aws_db_instance.main_db.endpoint} -U admin -d postgres -c "CREATE DATABASE mlflowdb;"
-PGPASSWORD="adminpassword" psql -h ${aws_db_instance.main_db.endpoint} -U admin -d postgres -c "CREATE DATABASE grafanadb;"
+PGPASSWORD="masterpassword" psql -h ${aws_db_instance.main_db.endpoint} -U masteruser -d postgres -c "CREATE DATABASE mlflowdb;"
+PGPASSWORD="masterpassword" psql -h ${aws_db_instance.main_db.endpoint} -U masteruser -d postgres -c "CREATE DATABASE grafanadb;"
 EOT
   }
 }

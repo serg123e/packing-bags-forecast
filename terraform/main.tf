@@ -3,6 +3,10 @@ provider "aws" {
   region  = "eu-central-1"
 }
 
+provider "time" {
+  # no configuration required
+}
+
 # Create a VPC
 resource "aws_vpc" "main" {
   cidr_block = "10.0.0.0/16"
@@ -120,9 +124,15 @@ resource "aws_db_subnet_group" "main" {
   }
 }
 
+# Wait for 60 seconds to ensure the RDS instance is ready
+resource "time_sleep" "wait_for_rds" {
+  depends_on = [aws_db_instance.main_db]
+  create_duration = "60s"
+}
+
 # Create additional databases
 resource "null_resource" "create_databases" {
-  depends_on = [aws_db_instance.main_db]
+  depends_on = [time_sleep.wait_for_rds]
 
   provisioner "local-exec" {
     command = <<EOT

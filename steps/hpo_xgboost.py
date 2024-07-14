@@ -43,7 +43,7 @@ def data_for_target(df, target_column, hub_id):
     return data
 
 
-def hpo(df, target):
+def hpo(df, target, hub_id):
     def objective(params):
         with mlflow.start_run():
             print(params)
@@ -51,6 +51,7 @@ def hpo(df, target):
             mlflow.log_param('features', str(features))
             mlflow.set_tag('regressor', 'xgboost')
             mlflow.set_tag('target', target)
+            mlflow.log_param('hub_id', hub_id)
 
             # model = RandomForestRegressor(**params)
             X_train = train[features].values
@@ -116,7 +117,7 @@ def run(data):
             target_column_name, _ = build_names(target_column_prefix)
             target = [target_column_name]
 
-            best_params = hpo(df, target)
+            best_params = hpo(df, target, hub_id)
             if target_column_prefix not in result:
                 result[target_column_prefix] = {}
             result[target_column_prefix][hub_id] = best_params

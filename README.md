@@ -55,6 +55,8 @@ Here's how we structured our project:
     pipenv install
     ```
 
+3. Edit `.env` file
+
 ### Setting Up AWS
 
 1. Set up an RDS instance for MLflow tracking.

@@ -9,6 +9,7 @@ psycopg2 = "*"
 pandas = "*"
 tqdm = "*"
 mlflow = "==2.1.1"
+evidently = "*"
 
 [dev-packages]
 

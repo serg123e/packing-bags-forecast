@@ -55,7 +55,7 @@ def hpo(df, target, hub_id):
         with mlflow.start_run():
             print(params)
             mlflow.log_params(params)
-            mlflow.log_param('features', str(features))
+            mlflow.log_param('features', len(features))
             mlflow.set_tag('regressor', 'randomforest')
             mlflow.set_tag('target', target)
             mlflow.log_param('hub_id', hub_id)

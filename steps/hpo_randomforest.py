@@ -115,7 +115,7 @@ def run(data):
             target_column_name, _ = build_names(target_column_prefix)
             target = target_column_name
 
-            best_params = hpo(df, target)
+            best_params = hpo(df, target, hub_id)
             if target_column_prefix not in result:
                 result[target_column_prefix] = {}
             result[target_column_prefix][hub_id] = best_params

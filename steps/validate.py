@@ -8,10 +8,7 @@ from evidently.tests import *
 from evidently.report import Report
 from evidently.metrics import *
 from evidently.test_suite import TestSuite
-from evidently.test_preset import (
-    DataStabilityTestPreset,
-    NoTargetPerformanceTestPreset
-)
+from evidently.test_preset import DataStabilityTestPreset, NoTargetPerformanceTestPreset
 from evidently.metric_preset import DataDriftPreset, TargetDriftPreset
 from evidently.tests.base_test import generate_column_tests
 from evidently.metrics.base_metric import generate_column_metrics
@@ -21,11 +18,12 @@ IS_LAMBDA = os.getenv('AWS_LAMBDA_FUNCTION_NAME') is not None
 
 # EFS mount point for Lambda
 current_script_dir = os.path.dirname(__file__)
-EFS_MOUNT_POINT = '/mnt/efs' if IS_LAMBDA else os.path.join(current_script_dir, '../data')
+EFS_MOUNT_POINT = (
+    '/mnt/efs' if IS_LAMBDA else os.path.join(current_script_dir, '../data')
+)
 
 input_file_path = os.path.join(EFS_MOUNT_POINT, 'current_state.pkl')
 output_file_path = os.path.join(EFS_MOUNT_POINT, 'data_drift.json')
-
 
 
 def run(df_enriched):
@@ -53,7 +51,7 @@ def run(df_enriched):
     print(current.head())
     current = current[num_columns].dropna()
     print(current.head())
-#    print(reference.head())
+    #    print(reference.head())
     if reference.empty or current.empty:
         raise ValueError(
             "The datasets must contain numeric columns without missing values for correlation calculation."
@@ -65,14 +63,13 @@ def run(df_enriched):
     return report.as_dict()
 
 
-
 def remove_forecast_columns(data: pd.DataFrame) -> pd.DataFrame:
     # Identify columns ending with '_forecast'
     forecast_columns = data.filter(regex='_forecast$').columns
-    
+
     # Drop these columns from the DataFrame
     data = data.drop(columns=forecast_columns)
-    
+
     return data
 
 

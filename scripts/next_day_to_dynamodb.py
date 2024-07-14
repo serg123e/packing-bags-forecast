@@ -1,13 +1,14 @@
-import pandas as pd
-import boto3
 import json
-from datetime import datetime, timedelta, date
-from decimal import Decimal, getcontext, ROUND_HALF_UP
+from decimal import ROUND_HALF_UP, Decimal, getcontext
+from datetime import date, datetime, timedelta
 
+import boto3
+import pandas as pd
 
-# Configure decimal context for precie rounding, 
-getcontext().prec = 10 # significant digits, 12.34567890
+# Configure decimal context for precie rounding,
+getcontext().prec = 10  # significant digits, 12.34567890
 getcontext().rounding = ROUND_HALF_UP
+
 
 # Load configuration file
 def load_config(config_path):
@@ -15,37 +16,54 @@ def load_config(config_path):
         config = json.load(file)
     return config
 
+
 # Save configuration file
 def save_config(config, config_path):
     with open(config_path, 'w') as file:
         json.dump(config, file)
+
 
 # Load data from CSV file
 def load_data(csv_path):
     data = pd.read_csv(csv_path)
     return data
 
+
 # Convert numerical columns to Decimal and datetime columns to string
 def convert_to_compatible_types(data):
     data['order_id'] = data['order_id'].astype(str)
 
     for col in data.select_dtypes(include=['float64']).columns:
-        data[col] = data[col].apply(lambda x: str(round(x, 6)) if pd.notnull(x) else '0')
+        data[col] = data[col].apply(
+            lambda x: str(round(x, 6)) if pd.notnull(x) else '0'
+        )
     for col in data.select_dtypes(include=['datetime64[ns, UTC]']).columns:
         data[col] = data[col].astype(str)
     return data
 
+
 # Filter data for DynamoDB load
-def filter_data(data, current_date, yesterday_date=pd.to_datetime(date(2000, 1, 1), utc=True)):
+def filter_data(
+    data, current_date, yesterday_date=pd.to_datetime(date(2000, 1, 1), utc=True)
+):
     data['delivery_time'] = pd.to_datetime(data['delivery_time'], utc=True)
     current_date = pd.to_datetime(current_date, utc=True)
 
-    today_data = data[(data['delivery_time'] >= yesterday_date) & (data['delivery_time'] < current_date)]
-    tomorrow_data = data[(data['delivery_time'] >= current_date) & (data['delivery_time'] < current_date + timedelta(days=1))]
+    today_data = data[
+        (data['delivery_time'] >= yesterday_date)
+        & (data['delivery_time'] < current_date)
+    ]
+    tomorrow_data = data[
+        (data['delivery_time'] >= current_date)
+        & (data['delivery_time'] < current_date + timedelta(days=1))
+    ]
 
-    tomorrow_data = tomorrow_data.drop(columns=[col for col in tomorrow_data.columns if '_used' in col])
+    tomorrow_data = tomorrow_data.drop(
+        columns=[col for col in tomorrow_data.columns if '_used' in col]
+    )
 
     return today_data, tomorrow_data
+
 
 # Check if DynamoDB table is empty
 def is_dynamodb_empty(table_name):
@@ -58,6 +76,7 @@ def is_dynamodb_empty(table_name):
 def remove_duplicates(data):
     data = data.drop_duplicates(subset=['order_id'])
     return data
+
 
 # Load data into DynamoDB
 def load_to_dynamodb(data, table_name):
@@ -80,11 +99,13 @@ def load_to_dynamodb(data, table_name):
 
             # batch.put_item(Item=row.to_dict())
 
+
 # Update configuration date
 def update_config_date(config):
     current_date = pd.to_datetime(config['current_date'], utc=True)
     new_date = current_date + timedelta(days=1)
     config['current_date'] = new_date.isoformat()
+
 
 # Main function
 def main():
@@ -119,6 +140,7 @@ def main():
     # Update configuration date
     update_config_date(config)
     save_config(config, config_path)
+
 
 if __name__ == '__main__':
     main()

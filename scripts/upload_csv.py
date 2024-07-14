@@ -1,7 +1,8 @@
 # upload_csv.py
-import psycopg2
-import pandas as pd
 import os
+
+import pandas as pd
+import psycopg2
 from column_generator import generate_columns, get_column_names
 
 DEFAULT_DBNAME = 'data_warehouse'
@@ -25,7 +26,7 @@ conn = psycopg2.connect(
     port=db_endpoint.split(':')[1],
     database=db_name,
     user=db_username,
-    password=db_password
+    password=db_password,
 )
 
 # Create a cursor
@@ -50,7 +51,7 @@ insert_query = f"""
 INSERT INTO {TABLE_NAME} ({', '.join(columns)}) VALUES ({', '.join(['%s'] * len(columns))});
 """
 
-#for _, row in data.iterrows():
+# for _, row in data.iterrows():
 #    cur.execute(insert_query, tuple(row))
 
 conn.commit()
@@ -58,4 +59,3 @@ conn.commit()
 # Close the cursor and connection
 cur.close()
 conn.close()
-

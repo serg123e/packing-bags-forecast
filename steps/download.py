@@ -1,6 +1,7 @@
-import psycopg2
-import pandas as pd
 import os
+
+import pandas as pd
+import psycopg2
 from column_generator import get_column_names
 
 DEFAULT_DBNAME = 'data_warehouse'
@@ -14,7 +15,10 @@ IS_LAMBDA = os.getenv('AWS_LAMBDA_FUNCTION_NAME') is not None
 
 # EFS mount point for Lambda
 current_script_dir = os.path.dirname(__file__)
-EFS_MOUNT_POINT = '/mnt/efs' if IS_LAMBDA else os.path.join(current_script_dir, '../data')
+EFS_MOUNT_POINT = (
+    '/mnt/efs' if IS_LAMBDA else os.path.join(current_script_dir, '../data')
+)
+
 
 def download_to_csv():
     # Get parameters from environment variables
@@ -22,7 +26,7 @@ def download_to_csv():
     db_username = os.getenv('DB_USERNAME', DEFAULT_USERNAME)
     db_password = os.getenv('DB_PASSWORD', DEFAULT_PASSWORD)
     db_name = os.getenv('DB_NAME', DEFAULT_DBNAME)
-    
+
     # Path to the output CSV file
     output_csv_file_path = os.path.join(EFS_MOUNT_POINT, 'current_state.csv')
 
@@ -32,7 +36,7 @@ def download_to_csv():
         port=db_endpoint.split(':')[1],
         database=db_name,
         user=db_username,
-        password=db_password
+        password=db_password,
     )
 
     # Create a cursor
@@ -60,12 +64,11 @@ def download_to_csv():
 
     return f"Data successfully downloaded to {output_csv_file_path}"
 
+
 def lambda_handler(event, context):
     result = download_to_csv()
-    return {
-        'statusCode': 200,
-        'body': result
-    }
+    return {'statusCode': 200, 'body': result}
+
 
 if __name__ == '__main__':
     print(download_to_csv())

@@ -7,10 +7,10 @@ import pandas as pd
 from joblib import dump
 from hyperopt import STATUS_OK, Trials, hp, tpe, fmin
 from hyperopt.pyll import scope
-from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_squared_error
-from sklearn.model_selection import train_test_split
 from column_generator import build_training_features
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.model_selection import train_test_split
 
 # Determine if running in AWS Lambda or locally
 IS_LAMBDA = os.getenv('AWS_LAMBDA_FUNCTION_NAME') is not None
@@ -18,7 +18,9 @@ IS_LAMBDA = os.getenv('AWS_LAMBDA_FUNCTION_NAME') is not None
 current_script_dir = os.path.dirname(__file__)
 
 # EFS mount point for Lambda
-EFS_MOUNT_POINT = '/mnt/efs' if IS_LAMBDA else os.path.join(current_script_dir, '../data')
+EFS_MOUNT_POINT = (
+    '/mnt/efs' if IS_LAMBDA else os.path.join(current_script_dir, '../data')
+)
 
 # mlflow.set_tracking_uri("sqlite:///" + os.path.join(EFS_MOUNT_POINT, 'mlflow.db'))
 # mlflow.set_tracking_uri("sqlite:///" + os.path.join(EFS_MOUNT_POINT, 'mlflow.db')
@@ -91,16 +93,19 @@ def hpo(df, target, hub_id):
         'oob_score': hp.choice('oob_score', [False]),
         'random_state': hp.choice('random_state', [42]),
         'verbose': hp.choice('verbose', [0]),
-        'warm_start': hp.choice('warm_start', [False])
+        'warm_start': hp.choice('warm_start', [False]),
     }
 
     trials = Trials()
-    best = fmin(fn=objective, space=space, algo=tpe.suggest, max_evals=max_evals, trials=trials)
+    best = fmin(
+        fn=objective, space=space, algo=tpe.suggest, max_evals=max_evals, trials=trials
+    )
 
     return best
 
+
 def run(data):
-    target_columns = ['deep_frozen_bags' , 'cold_bags', 'bags']
+    target_columns = ['deep_frozen_bags', 'cold_bags', 'bags']
 
     result = {}
     for hub_id in [1, 4]:

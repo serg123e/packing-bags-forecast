@@ -1,10 +1,11 @@
 import os
-import psycopg2
-import pandas as pd
-import joblib
+
 import numpy as np
+import joblib
+import pandas as pd
+import psycopg2
 from sklearn.metrics import mean_squared_error
-from column_generator import build_training_features, get_column_names
+from column_generator import get_column_names, build_training_features
 
 DEFAULT_DBNAME = 'data_warehouse'
 DEFAULT_USERNAME = 'postgres'
@@ -18,16 +19,26 @@ current_script_dir = os.path.dirname(__file__)
 EFS_MOUNT_POINT = '/mnt/efs' if IS_LAMBDA else os.path.join(current_script_dir, '..')
 input_file_path = os.path.join(EFS_MOUNT_POINT, 'data', 'current_state.pkl')
 
+
 def load_data():
     return pd.read_pickle(input_file_path)
 
+
 def filter_rows_with_null_forecasts(data):
-    forecast_columns = ['bags_used_forecast', 'cold_bags_used_forecast', 'deep_frozen_bags_used_forecast']
+    forecast_columns = [
+        'bags_used_forecast',
+        'cold_bags_used_forecast',
+        'deep_frozen_bags_used_forecast',
+    ]
     return data[data[forecast_columns].isna().any(axis=1)]
 
+
 def load_model(target_column, hub_id):
-    model_path = os.path.join(EFS_MOUNT_POINT, 'models', f"{target_column}_{hub_id}.joblib")
+    model_path = os.path.join(
+        EFS_MOUNT_POINT, 'models', f"{target_column}_{hub_id}.joblib"
+    )
     return joblib.load(model_path)
+
 
 def make_predictions(data, hub_id, features):
     target_columns = ['cold_bags', 'bags', 'deep_frozen_bags']
@@ -38,6 +49,7 @@ def make_predictions(data, hub_id, features):
         hub_data = data[data.hub_id == hub_id]
         hub_data[forecast_column_name] = model.predict(hub_data[features].values)
     return data
+
 
 def update_postgresql(data):
     db_endpoint = os.getenv('DB_ENDPOINT', DEFAULT_ENDPOINT)
@@ -50,7 +62,7 @@ def update_postgresql(data):
         port=db_endpoint.split(':')[1],
         database=db_name,
         user=db_username,
-        password=db_password
+        password=db_password,
     )
 
     cur = conn.cursor()
@@ -63,11 +75,20 @@ def update_postgresql(data):
                 deep_frozen_bags_used_forecast = %s
             WHERE order_id = %s;
         """
-        cur.execute(update_query, (row['bags_used_forecast'], row['cold_bags_used_forecast'], row['deep_frozen_bags_used_forecast'], row['order_id']))
+        cur.execute(
+            update_query,
+            (
+                row['bags_used_forecast'],
+                row['cold_bags_used_forecast'],
+                row['deep_frozen_bags_used_forecast'],
+                row['order_id'],
+            ),
+        )
 
     conn.commit()
     cur.close()
     conn.close()
+
 
 def main():
     # Download data from PostgreSQL if necessary
@@ -93,13 +114,11 @@ def main():
 
     return "Predictions made and database updated successfully."
 
+
 def lambda_handler(event, context):
     result = main()
-    return {
-        'statusCode': 200,
-        'body': result
-    }
+    return {'statusCode': 200, 'body': result}
+
 
 if __name__ == '__main__':
     print(main())
-

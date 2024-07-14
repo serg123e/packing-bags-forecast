@@ -3,7 +3,7 @@
 Hey there! Welcome to our Bag Prediction Project. 
 Our aim here is to predict the number of bags needed to pack orders for the next day's delivery. 
 We don't have the exact volume of the products, 
-but we do know their categories (like Grocery, Fresh meat, Wine, Deep frozen products, etc.), the quantity, and the weight.
+but we do know their categories (like Grocery, Fresh meat, Wine, Deep frozen products, etc.), the quantity in standartized Volume Units, and the weight.
 
 ## Project Overview
 
@@ -16,11 +16,11 @@ Accurate predictions are crucial for planning logistics and understanding the re
 Here's what we're using:
 
 - **AWS RDS**: Our MLflow tracking database
-- **AWS Lambda**: Running the inference code
-- **Evidently**: Monitoring model performance
-- **Grafana**: Visualizing the monitoring metrics
-- **MLflow**: Managing the machine learning lifecycle
-- **Pytest**: Testing our code
+- **AWS Lambda**: Running the training and inference code
+- **AWS EFS**: Storing intermediate data
+- **Evidently**: Monitoring data drift and model performance
+- **MLflow**: Experimet tracking
+- **Pytest**: Testing code
 
 ## Project Structure
 
@@ -28,7 +28,8 @@ Here's how we structured our project:
 
 - **data/**: Contains our raw and processed data
 - **notebooks/**: Jupyter notebooks for exploration and experimentation
-- **scripts/**: Python scripts for data processing, training, and inference
+- **steps/**: Python Lambda functions for data processing, training, and inference
+- **scripts/**: Auxilary Python scripts
 - **tests/**: Pytest scripts to ensure our code works as expected
 - **models/**: Stored models and related artifacts
 - **monitoring/**: Scripts and configurations for monitoring with Evidently and Grafana
@@ -38,20 +39,20 @@ Here's how we structured our project:
 ### Prerequisites
 
 - AWS account with necessary permissions
-- Python 3.8+
+- Python 3.10+
 - Docker (for local testing and deployment)
 
 ### Installation
 
 1. Clone this repo:
     ```bash
-    git clone https://github.com/yourusername/bag-prediction-project.git
-    cd bag-prediction-project
+    git clone https://github.com/serg123e/packing-bags-forecast.git
+    cd packing-bags-forecast
     ```
 
 2. Install the required Python packages:
     ```bash
-    pip install -r requirements.txt
+    pipenv install
     ```
 
 ### Setting Up AWS
@@ -60,24 +61,43 @@ Here's how we structured our project:
 2. Configure AWS Lambda to run the inference code.
 3. Set up AWS credentials and permissions.
 
+
+### Simulation
+It's assumed that new data is always being added and updated in the `*_bags_used` columns of our `data_warehouse` database. 
+
+For testing and demonstration, we can use the `next_week.py` script from `scripts/`. 
+
+This script loads data from CSV files into the database, simulating the addition of new data each week.
+
+
+### Spin up mlflow server:
+```bash
+make mlflow
+```
+
+
 ### Running the Project
+  - Locally:
 
-1. **Data Processing**:
-    ```bash
-    python scripts/data_processing.py
-    ```
+      1. **Data Processing**:
+          ```bash
+          pipenv run python steps/download.py
+          pipenv run python steps/ingest.py
+          pipenv run python steps/transform.py
+          ```
 
-2. **Training the Model**:
-    ```bash
-    python scripts/train_model.py
-    ```
+      2. **Hyperparameter optimization**:
+          ```bash
+          pipenv run python steps/hpo_xgboost.py
+          pipenv run python steps/hpo_randomforest.py
+          ```
 
-3. **Running Inference**:
-    - Locally:
-        ```bash
-        python scripts/inference.py
-        ```
-    - On AWS Lambda: Deploy the inference script to Lambda and trigger it.
+      3. **Running Inference**:
+          ```bash
+          pipenv run steps/predict.py
+          ```
+
+  - On AWS Lambda: Deploy the inference script to Lambda and trigger it.
 
 4. **Monitoring**:
     - Set up Evidently and Grafana using the provided configurations in the `monitoring/` folder.
@@ -100,8 +120,9 @@ This project is licensed under the MIT License.
 
 ## Contact
 
-Got questions? Drop me a message on [LinkedIn](https://www.linkedin.com/in/yourprofile) or create an issue on GitHub.
+Got questions? Drop me a message on [LinkedIn](https://www.linkedin.com/in/sergey-evstegneiev/) or create an issue on GitHub.
 
 ---
 
 Enjoy predicting those bags! 🚀
+

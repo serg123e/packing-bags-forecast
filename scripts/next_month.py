@@ -4,6 +4,7 @@ import json
 from datetime import datetime, timedelta, date
 from decimal import Decimal, getcontext, ROUND_HALF_UP
 import os
+from tqdm import tqdm
 
 DEFAULT_DBNAME = 'data_warehouse'
 DEFAULT_USERNAME = 'postgres'
@@ -67,7 +68,7 @@ def remove_duplicates(data):
     return data
 
 # Load data into PostgreSQL
-def load_to_postgres(data, table_name, conn):
+def load_to_postgres(label, data, table_name, conn):
     data = convert_to_compatible_types(data)
     data = remove_duplicates(data)
 
@@ -86,10 +87,9 @@ def load_to_postgres(data, table_name, conn):
     """
 
     cur = conn.cursor()
-    for _, row in data.iterrows():
+    for row in tqdm(data.itertuples(index=False), total=len(data), desc=f"Loading {label} month data to PostgreSQL DB"):
         row = tuple(None if pd.isna(x) else x for x in row)
-        print(".", end="")
-        cur.execute(insert_query, tuple(row))
+        cur.execute(insert_query, row)
     conn.commit()
     cur.close()
 
@@ -102,7 +102,12 @@ def update_config_date(config):
 # Main function
 def main():
     config_path = 'next_month.json'
-    csv_path = '../dataset/bags_forecast_with_id.csv'
+    # Get the directory of the current script
+    current_script_dir = os.path.dirname(__file__)
+    # Construct the path relative to the current script
+    csv_path = os.path.join(current_script_dir, '../data/bags_forecast_with_id.csv')
+
+    # csv_path = '../dataset/bags_forecast_with_id.csv'
     
     table_name = TABLE_NAME
     # Load configuration
@@ -131,9 +136,9 @@ def main():
     else:
         # Filter data for previous, current, and next month
         previous_month_data, current_month_data, next_month_data = filter_data(data, current_date)
-        load_to_postgres(previous_month_data, table_name, conn)
-        load_to_postgres(current_month_data, table_name, conn)
-        load_to_postgres(next_month_data, table_name, conn)
+        load_to_postgres("previous", previous_month_data, table_name, conn) # just in case
+        load_to_postgres("current", current_month_data, table_name, conn)
+        load_to_postgres("next", next_month_data, table_name, conn)
 
     # Update configuration date
     update_config_date(config)
@@ -144,4 +149,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-

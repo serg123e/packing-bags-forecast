@@ -104,8 +104,9 @@ def update_config_date(config):
 
 # Main function
 def main():
-    config_path = 'next_week.json'
-    csv_path = '../dataset/bags_forecast_with_id.csv'
+    current_script_dir = os.path.dirname(__file__)
+    csv_path = os.path.join(current_script_dir, '../data/bags_forecast_with_id.csv')
+    config_path = os.path.join(current_script_dir, './next_week.json')
     
     table_name = TABLE_NAME
     # Load configuration
@@ -134,7 +135,7 @@ def main():
         # Filter data for previous, current, and next week
         previous_week_data, current_week_data, next_week_data = filter_data(data, current_date)
         load_to_postgres("previous week", previous_week_data, table_name, conn)
-        load_to_postgres("current week", current_week_data, table_name, conn)
+        load_to_postgres(f"current week {current_date}", current_week_data, table_name, conn)
         load_to_postgres("next week filtered", next_week_data, table_name, conn)
 
     # Update configuration date

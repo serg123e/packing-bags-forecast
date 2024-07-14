@@ -13,7 +13,8 @@ TABLE_NAME = 'bags_forecast'
 IS_LAMBDA = os.getenv('AWS_LAMBDA_FUNCTION_NAME') is not None
 
 # EFS mount point for Lambda
-EFS_MOUNT_POINT = '/mnt/efs' if IS_LAMBDA else '.'
+current_script_dir = os.path.dirname(__file__)
+EFS_MOUNT_POINT = '/mnt/efs' if IS_LAMBDA else os.path.join(current_script_dir, '../data')
 
 def download_to_csv():
     # Get parameters from environment variables

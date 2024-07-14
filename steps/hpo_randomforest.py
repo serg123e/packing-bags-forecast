@@ -10,19 +10,24 @@ from hyperopt.pyll import scope
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_squared_error
 from sklearn.model_selection import train_test_split
+from column_generator import build_training_features
 
 # Determine if running in AWS Lambda or locally
 IS_LAMBDA = os.getenv('AWS_LAMBDA_FUNCTION_NAME') is not None
 
-# EFS mount point for Lambda
-EFS_MOUNT_POINT = '/mnt/efs' if IS_LAMBDA else '.'
+current_script_dir = os.path.dirname(__file__)
 
-mlflow.set_tracking_uri("sqlite:///" + os.path.join(EFS_MOUNT_POINT, 'mlflow.db'))
+# EFS mount point for Lambda
+EFS_MOUNT_POINT = '/mnt/efs' if IS_LAMBDA else os.path.join(current_script_dir, '../data')
+
+# mlflow.set_tracking_uri("sqlite:///" + os.path.join(EFS_MOUNT_POINT, 'mlflow.db'))
 # mlflow.set_tracking_uri("sqlite:///" + os.path.join(EFS_MOUNT_POINT, 'mlflow.db')
 
 input_file_path = os.path.join(EFS_MOUNT_POINT, 'current_state.pkl')
 output_file_path = os.path.join(EFS_MOUNT_POINT, 'hpo_randomforest.json')
 max_evals = os.getenv("HPO_MAX_EVALS", 10)
+
+mlflow.set_experiment("hpo-bags")
 
 
 def build_names(target_column):
@@ -93,15 +98,6 @@ def hpo(df, target, hub_id):
     best = fmin(fn=objective, space=space, algo=tpe.suggest, max_evals=max_evals, trials=trials)
 
     return best
-
-def build_training_features(data):
-    extra_features = ['day_of_week', 'number_of_week', 'delivery_hour']
-    totals_columns = ['lint_item_count', 'total_quantity', 'positions', 'total_weight']
-    cat_columns = [col for col in data.columns if col.startswith('cat_')]
-
-    filtered_columns = cat_columns + totals_columns + extra_features
-
-    return filtered_columns
 
 def run(data):
     target_columns = ['deep_frozen_bags' , 'cold_bags', 'bags']

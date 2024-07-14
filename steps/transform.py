@@ -6,7 +6,8 @@ from pandas import DataFrame
 IS_LAMBDA = os.getenv('AWS_LAMBDA_FUNCTION_NAME') is not None
 
 # EFS mount point for Lambda
-EFS_MOUNT_POINT = '/mnt/efs' if IS_LAMBDA else '.'
+current_script_dir = os.path.dirname(__file__)
+EFS_MOUNT_POINT = '/mnt/efs' if IS_LAMBDA else os.path.join(current_script_dir, '../data')
 
 input_file_path = os.path.join(EFS_MOUNT_POINT, 'current_state.pkl')
 output_file_path = os.path.join(EFS_MOUNT_POINT, 'current_state.pkl')

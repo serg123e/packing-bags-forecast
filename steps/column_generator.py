@@ -25,3 +25,12 @@ def generate_columns():
 def get_column_names():
     columns = [col.split()[0] for col in generate_columns()]
     return columns
+
+def build_training_features(data):
+    extra_features = ['day_of_week', 'number_of_week', 'delivery_hour']
+    totals_columns = ['lint_item_count', 'total_quantity', 'positions', 'total_weight']
+    cat_columns = [col for col in data.columns if col.startswith('cat_')]
+
+    filtered_columns = cat_columns + totals_columns + extra_features
+
+    return filtered_columns

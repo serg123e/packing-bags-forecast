@@ -8,6 +8,7 @@ boto3 = "*"
 psycopg2 = "*"
 pandas = "*"
 tqdm = "*"
+mlflow = "==2.1.1"
 
 [dev-packages]
 

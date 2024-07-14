@@ -26,6 +26,8 @@ def extra_features(data: DataFrame, *args, **kwargs) -> DataFrame:
 def remove_outliers(df: DataFrame, *args, **kwargs) -> DataFrame:
     df = df[df.bags_used < 10]
     df = df[df.bags_used > 0]
+    df = df[df.cold_bags_used > 0]
+    df = df[df.deep_frozen_bags_used > 0]
     df = df[df.total_weight < 5e4]
     df.fillna(0.0, inplace=True)
     return df

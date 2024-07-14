@@ -51,6 +51,7 @@ def filter_data(data, current_date):
     next_week_data = data[(data['delivery_time'] >= start_of_next_week) & (data['delivery_time'] < start_of_next_week + timedelta(weeks=1))]
 
     next_week_data = next_week_data.drop(columns=[col for col in next_week_data.columns if '_used' in col])
+    next_week_data = next_week_data.drop(columns=[col for col in next_week_data.columns if '_forecast' in col])
 
     return previous_week_data, current_week_data, next_week_data
 

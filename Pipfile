@@ -10,6 +10,7 @@ pandas = "*"
 tqdm = "*"
 mlflow = "==2.1.1"
 evidently = "*"
+xgboost = "*"
 
 [dev-packages]
 

@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "e4b329515c21021c898117b9242e74ded0134ef8bd7171262fe16200ce1e512a"
+            "sha256": "7f58aaae7bfdcea9f2c139051e10fc9c33e9137580c9bddda398ba449110f551"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -1105,6 +1105,13 @@
             ],
             "markers": "python_version >= '3.9'",
             "version": "==1.26.4"
+        },
+        "nvidia-nccl-cu12": {
+            "hashes": [
+                "sha256:f9f5e03c00269dee2cd1aa57019f9a024478a74ae6e9b32d5341c849fe6f6302"
+            ],
+            "markers": "platform_system == 'Linux' and platform_machine != 'aarch64'",
+            "version": "==2.22.3"
         },
         "oauthlib": {
             "hashes": [
@@ -2298,6 +2305,21 @@
             ],
             "markers": "python_version >= '3.8'",
             "version": "==3.0.3"
+        },
+        "xgboost": {
+            "hashes": [
+                "sha256:19d145eb847b070c32342b1bf2d7331c102783e07a484f8b13b7d759d707c6b0",
+                "sha256:43b16205689249d7509daf7a6ab00ad0e6c570b3a9c263cb32b26e39d9477bb3",
+                "sha256:7144980923e76ce741c7b03a14d3bd7514db6de5c7cabe96ba95b229d274f5ca",
+                "sha256:73673c9bb85927db7fe2e3aed6df6d35dba708cfd6767cc63d4ea11dda2dede5",
+                "sha256:74904b91c42524a6c32147fe5718569e78fb65911ff4499b053f81d0964514d4",
+                "sha256:840a0c6e2119d8c8f260a5dace996ea064a267f62b301a25d7d452488a7ac860",
+                "sha256:b2a456eb0f3d3e8fd8ab37e44ac288292bf8ea8744c294be9fd88713d27af810",
+                "sha256:cedc2e386e686795735448fd4597533acacc5ba6fb47dd910c204c468b80bb96"
+            ],
+            "index": "pypi",
+            "markers": "python_version >= '3.8'",
+            "version": "==2.1.0"
         },
         "zipp": {
             "hashes": [

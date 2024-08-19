@@ -52,6 +52,7 @@ Here's how we structured our project:
 
 2. Install the required Python packages:
     ```bash
+    pip install pipenv --user
     pipenv install
     ```
 
@@ -79,9 +80,7 @@ Here's how we structured our project:
       2. **Hyperparameter optimization**:
           ```bash
           make mlflow
-          make prepare
-          pipenv run python src/hpo_xgboost.py
-          pipenv run python src/hpo_randomforest.py
+          make hpo
           ```
 
           best parameters will be stored in `data/hpo_*.json` files but you can check the whole experiments track on [mlflow server](https://localhost:5000) and update parameters accordingly in `src/train.py`

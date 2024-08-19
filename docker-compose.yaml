@@ -16,7 +16,13 @@ services:
   localstack:
     image: localstack/localstack:latest
     environment:
-      SERVICES: s3
+      # LocalStack configuration: https://docs.localstack.cloud/references/configuration/
+      - SERVICES=s3,lambda
+      - DEBUG=${DEBUG:-0}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_DEFAULT_REGION=${AWS_REGION}
+      - AWS_BUCKET_NAME=${AWS_BUCKET_NAME}
     ports:
       - "4566:4566"
       - "4571:4571"

@@ -23,6 +23,7 @@ current_script_dir = os.path.dirname(__file__)
 
 # EFS mount point for Lambda
 EFS_MOUNT_POINT = '/mnt/efs' if IS_LAMBDA else os.path.join(current_script_dir, '..')
+DEVICE="cpu"
 
 # mlflow.set_tracking_uri("sqlite:///" + os.path.join(EFS_MOUNT_POINT, 'mlflow.db'))
 # mlflow.set_tracking_uri("sqlite:///" + os.path.join(EFS_MOUNT_POINT, 'mlflow.db')
@@ -83,7 +84,7 @@ def train_model(df_filtered, target_column, hub_id, features):
 
         model = xgb.XGBRegressor(
             **params,
-            device="cuda",  # tree_method="gpu_hist",
+            device=DEVICE,  # tree_method="gpu_hist",
             # objective="reg:squarederror", random_state=42,
             # colsample_bytree=0.804, gamma=0.31904,
             # learning_rate=0.02098, max_depth=8, n_estimators=1400,
@@ -103,7 +104,7 @@ def train_model(df_filtered, target_column, hub_id, features):
             'subsample': 0.5581688088227714,
             'verbosity': 1,
         }
-        model = xgb.XGBRegressor(**params, device="cuda")
+        model = xgb.XGBRegressor(**params, device=DEVICE)
 
     model.fit(train[features].values, train[target].values)
 

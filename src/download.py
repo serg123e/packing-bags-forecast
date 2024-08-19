@@ -3,11 +3,8 @@ import os
 import pandas as pd
 import psycopg2
 from column_generator import get_column_names
+from config import db_connect
 
-DEFAULT_DBNAME = 'data_warehouse'
-DEFAULT_USERNAME = 'postgres'
-DEFAULT_PASSWORD = 'postgres'
-DEFAULT_ENDPOINT = 'localhost:5432'
 TABLE_NAME = 'bags_forecast'
 
 # Determine if running in AWS Lambda or locally
@@ -24,19 +21,9 @@ DEFAULT_CSV_OUTPUT = os.path.join(EFS_MOUNT_POINT, 'current_state.csv')
 
 def download_to_csv(output_csv_file_path=DEFAULT_CSV_OUTPUT):
     # Get parameters from environment variables
-    db_endpoint = os.getenv('DB_ENDPOINT', DEFAULT_ENDPOINT)
-    db_username = os.getenv('DB_USERNAME', DEFAULT_USERNAME)
-    db_password = os.getenv('DB_PASSWORD', DEFAULT_PASSWORD)
-    db_name = os.getenv('DB_NAME', DEFAULT_DBNAME)
 
     # Connect to the PostgreSQL database
-    conn = psycopg2.connect(
-        host=db_endpoint.split(':')[0],
-        port=db_endpoint.split(':')[1],
-        database=db_name,
-        user=db_username,
-        password=db_password,
-    )
+    conn = db_connect()
 
     # Create a cursor
     cur = conn.cursor()

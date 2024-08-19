@@ -2,37 +2,14 @@
 import os
 import warnings
 import pandas as pd
-import psycopg2
 from column_generator import generate_columns, get_column_names
-
+from config import db_connect, TABLE_NAME
 
 def do_upload(csv_file_path, fraction=1.0):
     # Suppress deprecation warning
     warnings.filterwarnings("ignore", category=DeprecationWarning, module="pandas.core.dtypes.cast")
 
-    DEFAULT_DBNAME = 'data_warehouse'
-    DEFAULT_USERNAME = 'postgres'
-    DEFAULT_PASSWORD = 'postgres'
-    DEFAULT_ENDPOINT = 'localhost:5432'
-    TABLE_NAME = 'bags_forecast'
-
-    # Get parameters from environment variables
-    db_endpoint = os.getenv('DB_ENDPOINT', DEFAULT_ENDPOINT)
-    db_username = os.getenv('DB_USERNAME', DEFAULT_USERNAME)
-    db_password = os.getenv('DB_PASSWORD', DEFAULT_PASSWORD)
-    db_name = os.getenv('DB_NAME', DEFAULT_DBNAME)
-
-    # Example path to the CSV file
-    
-
-    # Connect to the PostgreSQL database
-    conn = psycopg2.connect(
-        host=db_endpoint.split(':')[0],
-        port=db_endpoint.split(':')[1],
-        database=db_name,
-        user=db_username,
-        password=db_password,
-    )
+    conn = db_connect()
 
     # Create a cursor
     cur = conn.cursor()

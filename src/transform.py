@@ -21,15 +21,6 @@ def transform(data: DataFrame, *args, **kwargs) -> DataFrame:
     return data
 
 
-def extra_features(data: DataFrame, *args, **kwargs) -> DataFrame:
-    df_enriched = data.copy()
-    df_enriched['day_of_year'] = df_enriched['delivery_time'].dt.dayofyear
-    df_enriched['day_of_week'] = df_enriched['delivery_time'].dt.dayofweek
-    df_enriched['number_of_week'] = df_enriched['delivery_time'].dt.isocalendar().week
-    df_enriched['delivery_hour'] = df_enriched['delivery_time'].dt.hour
-    return df_enriched
-
-
 def remove_outliers(df: DataFrame, *args, **kwargs) -> DataFrame:
     df = df[df.bags_used < 10]
     df = df[df.bags_used >= 0]
@@ -46,7 +37,6 @@ def do_transform():
 
     # Apply transformations
     data = transform(data)
-    data = extra_features(data)
     data = remove_outliers(data)
 
     # Save the DataFrame as a pickle file

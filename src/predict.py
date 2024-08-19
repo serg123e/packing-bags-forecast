@@ -1,4 +1,5 @@
 import os
+import warnings
 
 import numpy as np
 import joblib
@@ -6,12 +7,7 @@ import pandas as pd
 import psycopg2
 from sklearn.metrics import mean_squared_error
 from column_generator import get_column_names, build_training_features
-
-DEFAULT_DBNAME = 'data_warehouse'
-DEFAULT_USERNAME = 'postgres'
-DEFAULT_PASSWORD = 'postgres'
-DEFAULT_ENDPOINT = 'localhost:5432'
-TABLE_NAME = 'bags_forecast'
+from config import db_connect, TABLE_NAME
 
 # Determine if running in AWS Lambda or locally
 IS_LAMBDA = os.getenv('AWS_LAMBDA_FUNCTION_NAME') is not None
@@ -42,29 +38,22 @@ def load_model(target_column, hub_id):
 
 def make_predictions(data, hub_id, features):
     target_columns = ['cold_bags', 'bags', 'deep_frozen_bags']
+
     for target_column in target_columns:
         model = load_model(target_column, hub_id)
         # target_column_name = f"{target_column}_used"
         forecast_column_name = f"{target_column}_used_forecast"
         hub_data = data[data.hub_id == hub_id]
-        hub_data[forecast_column_name] = model.predict(hub_data[features].values)
+        # Filter the data for the specific hub_id
+        hub_data = data[data.hub_id == hub_id]
+        
+        # Safely assign the predicted values back to the original DataFrame using .loc[]
+        data.loc[data.hub_id == hub_id, forecast_column_name] = model.predict(hub_data[features].values)
     return data
 
 
 def update_postgresql(data):
-    db_endpoint = os.getenv('DB_ENDPOINT', DEFAULT_ENDPOINT)
-    db_username = os.getenv('DB_USERNAME', DEFAULT_USERNAME)
-    db_password = os.getenv('DB_PASSWORD', DEFAULT_PASSWORD)
-    db_name = os.getenv('DB_NAME', DEFAULT_DBNAME)
-
-    conn = psycopg2.connect(
-        host=db_endpoint.split(':')[0],
-        port=db_endpoint.split(':')[1],
-        database=db_name,
-        user=db_username,
-        password=db_password,
-    )
-
+    conn = db_connect()
     cur = conn.cursor()
     columns = get_column_names()
     for index, row in data.iterrows():

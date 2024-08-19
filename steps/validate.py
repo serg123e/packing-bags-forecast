@@ -73,7 +73,7 @@ def remove_forecast_columns(data: pd.DataFrame) -> pd.DataFrame:
     return data
 
 
-def main():
+def do_validate():
     data = pd.read_pickle(input_file_path)
     data = remove_forecast_columns(data)
     result = run(data)
@@ -83,10 +83,10 @@ def main():
 
 
 def lambda_handler(event, context):
-    result = main()
+    result = do_validate()
     json = json.dumps(result, indent=4, default=str)
     return {'statusCode': 200, 'body': json}
 
 
 if __name__ == '__main__':
-    print(main())
+    print(do_validate())

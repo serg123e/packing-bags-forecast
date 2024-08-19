@@ -15,6 +15,7 @@ pytest = "*"
 numpy = "*"
 black = "*"
 isort = "*"
+hyperopt = "*"
 
 [dev-packages]
 

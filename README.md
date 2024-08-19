@@ -55,9 +55,14 @@ Here's how we structured our project:
     pipenv install
     ```
 
-3. Edit `.env` file
+3. Edit `.env` file for production evironment or keep it as is for local testing and development
 
-4. Check if everything works
+4. Run required infrastructure
+    ```bash
+    docker compose up -d
+    ```
+
+5. Check if everything works
     ```bash
     make test
     ```
@@ -91,7 +96,7 @@ Here's how we structured our project:
           pipenv run steps/predict.py
           ```
 
-  - On AWS Lambda: Deploy the inference script as Lambda and trigger it (Not fully implemented yet)
+  - On AWS Lambda: Deploy the inference script as Lambda and trigger it (automatic deployment not implemented yet)
 
 4. **Monitoring**:
     - Set up Evidently and Grafana using the provided configurations in the `monitoring/` folder.

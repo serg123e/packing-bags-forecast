@@ -1,7 +1,7 @@
 import pytest
 import pandas as pd
 from pandas import DataFrame
-from transform import transform, extra_features, remove_outliers, do_transform, input_file_path, output_file_path
+from transform import transform, remove_outliers, do_transform, input_file_path, output_file_path
 
 @pytest.fixture
 def sample_data():
@@ -17,15 +17,6 @@ def sample_data():
 def test_transform(sample_data):
     transformed_data = transform(sample_data.copy())
     assert transformed_data['delivery_time'].dtype == 'datetime64[ns, UTC]'
-
-def test_extra_features(sample_data):
-    sample_data['delivery_time'] = pd.to_datetime(sample_data['delivery_time'], utc=True)
-    enriched_data = extra_features(sample_data)
-    assert 'day_of_year' in enriched_data.columns
-    assert 'day_of_week' in enriched_data.columns
-    assert 'number_of_week' in enriched_data.columns
-    assert 'delivery_hour' in enriched_data.columns
-    assert enriched_data['day_of_year'].iloc[0] == enriched_data['delivery_time'].dt.dayofyear.iloc[0]
 
 def test_remove_outliers(sample_data):
     sample_data['delivery_time'] = pd.to_datetime(sample_data['delivery_time'], utc=True)

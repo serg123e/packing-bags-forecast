@@ -19,16 +19,9 @@ EFS_MOUNT_POINT = (
 # Path to the output CSV file
 DEFAULT_CSV_OUTPUT = os.path.join(EFS_MOUNT_POINT, 'current_state.csv')
 
-def download_to_csv(output_csv_file_path=DEFAULT_CSV_OUTPUT):
-    # Get parameters from environment variables
-
-    # Connect to the PostgreSQL database
+def select_to_df():
     conn = db_connect()
-
-    # Create a cursor
     cur = conn.cursor()
-
-    # Get column names in the correct order
     columns = get_column_names()
 
     # Query to select all data from the table
@@ -40,13 +33,16 @@ def download_to_csv(output_csv_file_path=DEFAULT_CSV_OUTPUT):
 
     # Create a DataFrame from the fetched data
     data = pd.DataFrame(rows, columns=columns)
-
-    # Save the DataFrame to a CSV file
-    data.to_csv(output_csv_file_path, index=False)
-
     # Close the cursor and connection
     cur.close()
     conn.close()
+
+    return data
+
+def download_to_csv(output_csv_file_path=DEFAULT_CSV_OUTPUT):
+    data = select_to_df()
+    # Save the DataFrame to a CSV file
+    data.to_csv(output_csv_file_path, index=False)
 
     return f"Data successfully downloaded to {output_csv_file_path}"
 

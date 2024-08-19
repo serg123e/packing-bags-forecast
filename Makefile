@@ -3,6 +3,9 @@ mlflow:
 	docker compose up -d
 	bin/mlflow-server.sh &
 
+db_init:
+	pipenv run python src/upload_csv.py
+
 ingest:
 	pipenv run python src/download.py
 	pipenv run python src/ingest.py

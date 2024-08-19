@@ -79,7 +79,7 @@ Here's how we structured our project:
           ```
       2. **Hyperparameter optimization**:
           ```bash
-          make mlflow
+          make mlflow &
           make hpo
           ```
 

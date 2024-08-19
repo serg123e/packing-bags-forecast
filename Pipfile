@@ -13,6 +13,8 @@ evidently = "*"
 xgboost = "*"
 pytest = "*"
 numpy = "*"
+black = "*"
+isort = "*"
 
 [dev-packages]
 

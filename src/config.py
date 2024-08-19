@@ -3,6 +3,7 @@ import psycopg2
 
 TABLE_NAME = 'bags_forecast'
 
+
 def db_connect():
     DEFAULT_DBNAME = 'data_warehouse'
     DEFAULT_USERNAME = 'postgres'
@@ -16,7 +17,6 @@ def db_connect():
     db_name = os.getenv('DB_NAME', DEFAULT_DBNAME)
 
     # Example path to the CSV file
-    
 
     # Connect to the PostgreSQL database
     conn = psycopg2.connect(

@@ -4,7 +4,10 @@ import numpy as np
 import joblib
 
 import warnings
-warnings.filterwarnings("ignore", category=DeprecationWarning, module="mlflow.utils.requirements_utils")
+
+warnings.filterwarnings(
+    "ignore", category=DeprecationWarning, module="mlflow.utils.requirements_utils"
+)
 
 
 import mlflow
@@ -23,7 +26,7 @@ current_script_dir = os.path.dirname(__file__)
 
 # EFS mount point for Lambda
 EFS_MOUNT_POINT = '/mnt/efs' if IS_LAMBDA else os.path.join(current_script_dir, '..')
-DEVICE="cpu"
+DEVICE = "cpu"
 
 # mlflow.set_tracking_uri("sqlite:///" + os.path.join(EFS_MOUNT_POINT, 'mlflow.db'))
 # mlflow.set_tracking_uri("sqlite:///" + os.path.join(EFS_MOUNT_POINT, 'mlflow.db')
@@ -84,7 +87,7 @@ def train_model(df_filtered, target_column, hub_id, features):
 
         model = xgb.XGBRegressor(
             **params,
-            device=DEVICE, 
+            device=DEVICE,
         )
         # model = mlflow.pyfunc.load_model('/home/sir/farmy/ch.farmy.scinode/development/9631-update/mlruns/8/dfeb8badb69c493d91fab39c78c9999e/artifacts/model')
     else:

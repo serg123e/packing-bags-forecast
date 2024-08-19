@@ -18,12 +18,17 @@ from upload_csv import do_upload
 from download import download_to_csv
 from ingest import do_ingest
 from transform import do_transform
+
 # from train import do_train
 
 
-
 def test_upload():
-    csv_file_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'data', 'bags_forecast_with_id.csv')
+    csv_file_path = os.path.join(
+        os.path.dirname(os.path.abspath(__file__)),
+        '..',
+        'data',
+        'bags_forecast_with_id.csv',
+    )
 
     conn = db_connect()
     cur = conn.cursor()
@@ -42,4 +47,3 @@ def test_upload():
     # Close the cursor and connection
     cur.close()
     conn.close()
-

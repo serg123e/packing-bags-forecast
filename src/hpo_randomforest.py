@@ -4,13 +4,17 @@ import json
 import numpy as np
 import mlflow
 import pandas as pd
-import xgboost as xgb
 from joblib import dump
 from hyperopt import STATUS_OK, Trials, hp, tpe, fmin
 from hyperopt.pyll import scope
 from sklearn.metrics import mean_squared_error
-from column_generator import build_training_features
+from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import train_test_split
+
+src_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'src')
+sys.path.append(src_path)
+
+from column_generator import build_training_features
 
 # Determine if running in AWS Lambda or locally
 IS_LAMBDA = os.getenv('AWS_LAMBDA_FUNCTION_NAME') is not None
@@ -26,8 +30,8 @@ EFS_MOUNT_POINT = (
 # mlflow.set_tracking_uri("sqlite:///" + os.path.join(EFS_MOUNT_POINT, 'mlflow.db')
 
 input_file_path = os.path.join(EFS_MOUNT_POINT, 'current_state.pkl')
-output_file_path = os.path.join(EFS_MOUNT_POINT, 'hpo_xgboost.json')
-max_evals = int(os.getenv("HPO_MAX_EVALS", 10))
+output_file_path = os.path.join(EFS_MOUNT_POINT, 'hpo_randomforest.json')
+max_evals = os.getenv("HPO_MAX_EVALS", 10)
 
 mlflow.set_experiment("hpo-bags")
 
@@ -56,28 +60,18 @@ def hpo(df, target, hub_id):
             print(params)
             mlflow.log_params(params)
             mlflow.log_param('features', len(features))
-            mlflow.set_tag('regressor', 'xgboost')
+            mlflow.set_tag('regressor', 'randomforest')
             mlflow.set_tag('target', target)
             mlflow.log_param('hub_id', hub_id)
 
-            # model = RandomForestRegressor(**params)
             X_train = train[features].values
             y_train = train[target].values
-            print(X_train[0])
-            print(y_train[0])
             X_val = test[features].values
             y_val = test[target].values
-            train_matrix = xgb.DMatrix(X_train, label=y_train)
-            valid_matrix = xgb.DMatrix(X_val, label=y_val)
-            model = xgb.train(
-                params=params,
-                # device="cuda", tree_method="gpu_hist",
-                dtrain=train_matrix,
-                num_boost_round=1000,
-                evals=[(valid_matrix, 'validation')],
-                early_stopping_rounds=50,
-            )
-            y_pred = model.predict(valid_matrix)
+
+            model = RandomForestRegressor(**params)
+            model.fit(X_train, y_train)
+            y_pred = model.predict(X_val)
             rmse = mean_squared_error(y_val, y_pred, squared=False)
             mlflow.log_metric("rmse", rmse)
 
@@ -87,16 +81,23 @@ def hpo(df, target, hub_id):
     train, test = train_test_split(df, test_size=0.3, random_state=42)
 
     space = {
-        # 'booster': hp.choice('booster', ['gbtree', 'gblinear']),
-        'objective': hp.choice('objective', ["reg:squarederror"]),
-        'random_state': 42,
-        'colsample_bytree': hp.uniform('colsample_bytree', 0.5, 1),
-        'gamma': hp.uniform('gamma', 0.2, 0.35),
-        'learning_rate': hp.loguniform('learning_rate', np.log(0.005), np.log(0.03)),
-        'max_depth': scope.int(hp.quniform('max_depth', 7, 13, 1)),
-        'n_estimators': scope.int(hp.quniform('n_estimators', 700, 1400, 100)),
-        'subsample': hp.uniform('subsample', 0.4, 1),
-        'verbosity': 0,
+        'bootstrap': hp.choice('bootstrap', [False]),
+        'ccp_alpha': hp.uniform('ccp_alpha', 0.0, 0.1),
+        'criterion': hp.choice('criterion', ['squared_error']),
+        'max_depth': scope.int(hp.quniform('max_depth', 20, 40, 1)),
+        'max_features': hp.choice('max_features', ['sqrt']),
+        'max_leaf_nodes': hp.choice('max_leaf_nodes', [None]),
+        'max_samples': hp.choice('max_samples', [None]),
+        'min_impurity_decrease': hp.uniform('min_impurity_decrease', 0.0, 0.1),
+        'min_samples_leaf': scope.int(hp.quniform('min_samples_leaf', 1, 5, 1)),
+        'min_samples_split': scope.int(hp.quniform('min_samples_split', 5, 15, 1)),
+        'min_weight_fraction_leaf': hp.uniform('min_weight_fraction_leaf', 0.0, 0.1),
+        'n_estimators': scope.int(hp.quniform('n_estimators', 700, 900, 100)),
+        'n_jobs': hp.choice('n_jobs', [6]),
+        'oob_score': hp.choice('oob_score', [False]),
+        'random_state': hp.choice('random_state', [42]),
+        'verbose': hp.choice('verbose', [0]),
+        'warm_start': hp.choice('warm_start', [False]),
     }
 
     trials = Trials()

@@ -1,5 +1,6 @@
 # column_generator.py
 
+
 def generate_columns():
     # Define the base structure of the columns
     columns = ['order_id INTEGER PRIMARY KEY']

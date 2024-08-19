@@ -19,6 +19,7 @@ EFS_MOUNT_POINT = (
 # Path to the output CSV file
 DEFAULT_CSV_OUTPUT = os.path.join(EFS_MOUNT_POINT, 'current_state.csv')
 
+
 def select_to_df():
     conn = db_connect()
     cur = conn.cursor()
@@ -38,6 +39,7 @@ def select_to_df():
     conn.close()
 
     return data
+
 
 def download_to_csv(output_csv_file_path=DEFAULT_CSV_OUTPUT):
     data = select_to_df()

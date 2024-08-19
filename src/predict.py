@@ -19,7 +19,7 @@ EFS_MOUNT_POINT = '/mnt/efs' if IS_LAMBDA else os.path.join(current_script_dir, 
 
 
 def load_data():
-    return extra_features(select_to_df()) # return pd.read_pickle(input_file_path)
+    return extra_features(select_to_df())  # return pd.read_pickle(input_file_path)
 
 
 def filter_rows_with_null_forecasts(data):
@@ -48,9 +48,11 @@ def make_predictions(data, hub_id, features):
         hub_data = data[data.hub_id == hub_id]
         # Filter the data for the specific hub_id
         hub_data = data[data.hub_id == hub_id]
-        
+
         # Safely assign the predicted values back to the original DataFrame using .loc[]
-        data.loc[data.hub_id == hub_id, forecast_column_name] = model.predict(hub_data[features].values)
+        data.loc[data.hub_id == hub_id, forecast_column_name] = model.predict(
+            hub_data[features].values
+        )
     return data
 
 

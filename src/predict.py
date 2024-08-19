@@ -8,16 +8,18 @@ import psycopg2
 from sklearn.metrics import mean_squared_error
 from column_generator import get_column_names, build_training_features
 from config import db_connect, TABLE_NAME
+from download import select_to_df
+from ingest import extra_features
 
 # Determine if running in AWS Lambda or locally
 IS_LAMBDA = os.getenv('AWS_LAMBDA_FUNCTION_NAME') is not None
 current_script_dir = os.path.dirname(__file__)
 EFS_MOUNT_POINT = '/mnt/efs' if IS_LAMBDA else os.path.join(current_script_dir, '..')
-input_file_path = os.path.join(EFS_MOUNT_POINT, 'data', 'current_state.pkl')
+# input_file_path = os.path.join(EFS_MOUNT_POINT, 'data', 'current_state.pkl')
 
 
 def load_data():
-    return pd.read_pickle(input_file_path)
+    return extra_features(select_to_df()) # return pd.read_pickle(input_file_path)
 
 
 def filter_rows_with_null_forecasts(data):

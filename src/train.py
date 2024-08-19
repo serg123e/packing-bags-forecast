@@ -84,12 +84,7 @@ def train_model(df_filtered, target_column, hub_id, features):
 
         model = xgb.XGBRegressor(
             **params,
-            device=DEVICE,  # tree_method="gpu_hist",
-            # objective="reg:squarederror", random_state=42,
-            # colsample_bytree=0.804, gamma=0.31904,
-            # learning_rate=0.02098, max_depth=8, n_estimators=1400,
-            # subsample=0.6878477231583816,
-            # verbosity=0
+            device=DEVICE, 
         )
         # model = mlflow.pyfunc.load_model('/home/sir/farmy/ch.farmy.scinode/development/9631-update/mlruns/8/dfeb8badb69c493d91fab39c78c9999e/artifacts/model')
     else:
@@ -106,7 +101,7 @@ def train_model(df_filtered, target_column, hub_id, features):
         }
         model = xgb.XGBRegressor(**params, device=DEVICE)
 
-    model.fit(train[features].values, train[target].values)
+    model.fit(train[features].values, train[target].values.ravel())
 
     print("Mean Squared Error between {} and:".format(target_column))
     y_forecast = data[forecast_column_name].values.flatten()

@@ -34,14 +34,14 @@ def test_get_column_names():
 
 def test_build_training_features():
     # Create a mock DataFrame that simulates the structure of the data
-    data = pd.DataFrame(columns=[
+    data_columns = [
         'cat_01_normal_vu', 'cat_01_cold_weight', 'cat_01_frozen_vu',
         'lint_item_count', 'total_quantity', 'positions', 'total_weight',
         'day_of_week', 'number_of_week', 'delivery_hour',
         'unrelated_column'
-    ])
+    ]
     
-    training_features = build_training_features(data)
+    training_features = build_training_features(data_columns)
     
     # Expected columns in the output
     expected_columns = [

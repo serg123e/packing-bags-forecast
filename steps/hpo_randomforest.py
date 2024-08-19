@@ -40,7 +40,7 @@ def build_names(target_column):
 
 
 def data_for_target(df, target_column, hub_id):
-    features = build_training_features(df)
+    features = build_training_features(df.columns)
 
     target_column_name, forecast_column_name = build_names(target_column)
 
@@ -73,7 +73,7 @@ def hpo(df, target, hub_id):
 
         return {'loss': rmse, 'status': STATUS_OK}
 
-    features = build_training_features(df)
+    features = build_training_features(df.columns)
     train, test = train_test_split(df, test_size=0.3, random_state=42)
 
     space = {

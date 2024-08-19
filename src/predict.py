@@ -102,7 +102,7 @@ def do_predict():
 
     print(f"Prepared {data_with_nulls.shape[0]} rows for prediction")
     # Build features
-    features = build_training_features(data_with_nulls)
+    features = build_training_features(data_with_nulls.columns)
 
     # Make predictions
     hub_ids = data_with_nulls['hub_id'].unique()
@@ -116,7 +116,7 @@ def do_predict():
 
 
 def lambda_handler(event, context):
-    result = main()
+    result = do_predict()
     return {'statusCode': 200, 'body': result}
 
 

@@ -145,7 +145,7 @@ def do_train():
     df_filtered = data.dropna(
         subset=['bags_used', 'cold_bags_used', 'deep_frozen_bags_used']
     )
-    features = build_training_features(df_filtered)
+    features = build_training_features(df_filtered.columns)
 
     # print('{}-{} for {}'.format(start_date, end_date, extra_features))
     target_columns = ['cold_bags', 'bags', 'deep_frozen_bags']

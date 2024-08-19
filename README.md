@@ -46,6 +46,7 @@ Here's how we structured our project:
 
 1. Clone this repo:
     ```bash
+    git lfs install
     git clone https://github.com/serg123e/packing-bags-forecast.git
     cd packing-bags-forecast
     ```

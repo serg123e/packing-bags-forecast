@@ -15,7 +15,7 @@ Accurate predictions are crucial for planning logistics and understanding the re
 
 Here's what we're using:
 
-- **AWS RDS**: Our MLflow tracking database
+- **Postgres**: Our MLflow tracking database (AWS RDS or local)
 - **AWS Lambda**: Running the training and inference code
 - **AWS EFS**: Storing intermediate data
 - **Evidently**: Monitoring data drift and model performance
@@ -90,16 +90,19 @@ Here's how we structured our project:
          make train
          ```
 
-      3. **Running Inference**:
+      4. **Running Inference**:
           ```bash
-          pipenv run steps/predict.py
+          make predict
           ```
 
-  - On AWS Lambda: Deploy the inference script as Lambda and trigger it (automatic deployment not implemented yet)
 
-4. **Monitoring**:
-    - Set up Evidently and Grafana using the provided configurations in the `monitoring/` folder.
-    - Start the monitoring services to visualize the model's performance.
+      5. **Data drift monitoring with Evidently**:
+          ```bash
+          make validate
+          ```
+
+  - On AWS Lambda: Put model files on EFS, deploy the inference script `predict.py` as Lambda and trigger it (automatic deployment not implemented yet)
+
 
 ## Testing
 
@@ -108,9 +111,12 @@ We use Pytest for testing. To run the tests, simply use:
 pytest tests/
 ```
 
-## Contributions
+### Simulation
+It's assumed that new data is always being added and updated in the `*_bags_used` columns of our `bags_preciction` table. 
 
-Feel free to fork this repo, make your changes, and submit a pull request. Any contributions to improve the project are welcome!
+For testing and demonstration, we can use the `next_week.py` script from `scripts/`. 
+
+This script loads data from CSV files into the database, simulating the addition of new data each week.
 
 ## License
 
@@ -122,22 +128,4 @@ Got questions? Drop me a message on [LinkedIn](https://www.linkedin.com/in/serge
 
 ---
 
-Enjoy predicting those bags! 🚀
 
-
-
-
-
-### Setting Up AWS
-
-1. Set up an RDS instance for MLflow tracking.
-2. Configure AWS Lambda to run the inference code.
-3. Set up AWS credentials and permissions.
-
-
-### Simulation
-It's assumed that new data is always being added and updated in the `*_bags_used` columns of our `bags_preciction` table. 
-
-For testing and demonstration, we can use the `next_week.py` script from `scripts/`. 
-
-This script loads data from CSV files into the database, simulating the addition of new data each week.

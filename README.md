@@ -28,19 +28,18 @@ Here's how we structured our project:
 
 - **data/**: Contains our raw and processed data
 - **notebooks/**: Jupyter notebooks for exploration and experimentation
-- **steps/**: Python Lambda functions for data processing, training, and inference
+- **src/**: Python Lambda functions for data processing, training, and inference
 - **scripts/**: Auxilary Python scripts
 - **tests/**: Pytest scripts to ensure our code works as expected
 - **models/**: Stored models and related artifacts
-- **monitoring/**: Scripts and configurations for monitoring with Evidently and Grafana
 
 ## Getting Started
 
 ### Prerequisites
 
-- AWS account with necessary permissions
 - Python 3.10+
 - Docker (for local testing and deployment)
+- AWS account with necessary permissions (for production environment)
 
 ### Installation
 
@@ -58,49 +57,41 @@ Here's how we structured our project:
 
 3. Edit `.env` file
 
-### Setting Up AWS
-
-1. Set up an RDS instance for MLflow tracking.
-2. Configure AWS Lambda to run the inference code.
-3. Set up AWS credentials and permissions.
-
-
-### Simulation
-It's assumed that new data is always being added and updated in the `*_bags_used` columns of our `data_warehouse` database. 
-
-For testing and demonstration, we can use the `next_week.py` script from `scripts/`. 
-
-This script loads data from CSV files into the database, simulating the addition of new data each week.
-
-
-### Spin up mlflow server:
-```bash
-make mlflow
-```
+4. Check if everything works
+    ```bash
+    make test
+    ```
 
 
 ### Running the Project
   - Locally:
 
-      1. **Data Processing**:
-          ```bash
-          pipenv run python steps/download.py
-          pipenv run python steps/ingest.py
-          pipenv run python steps/transform.py
-          ```
 
+      1. **Load CSV**:
+          ```bash
+          make db_init
+          ```
       2. **Hyperparameter optimization**:
           ```bash
-          pipenv run python steps/hpo_xgboost.py
-          pipenv run python steps/hpo_randomforest.py
+          make mlflow
+          make prepare
+          pipenv run python src/hpo_xgboost.py
+          pipenv run python src/hpo_randomforest.py
           ```
+
+          best parameters will be stored in `data/hpo_*.json` files but you can check the whole experiments track on [mlflow server](https://localhost:5000) and update parameters accordingly in `src/train.py`
+
+      3. **Train models**
+         ```bash
+         make train
+         ```
 
       3. **Running Inference**:
           ```bash
           pipenv run steps/predict.py
           ```
 
-  - On AWS Lambda: Deploy the inference script to Lambda and trigger it.
+  - On AWS Lambda: Deploy the inference script as Lambda and trigger it (Not fully implemented yet)
 
 4. **Monitoring**:
     - Set up Evidently and Grafana using the provided configurations in the `monitoring/` folder.
@@ -129,3 +120,20 @@ Got questions? Drop me a message on [LinkedIn](https://www.linkedin.com/in/serge
 
 Enjoy predicting those bags! 🚀
 
+
+
+
+
+### Setting Up AWS
+
+1. Set up an RDS instance for MLflow tracking.
+2. Configure AWS Lambda to run the inference code.
+3. Set up AWS credentials and permissions.
+
+
+### Simulation
+It's assumed that new data is always being added and updated in the `*_bags_used` columns of our `bags_preciction` table. 
+
+For testing and demonstration, we can use the `next_week.py` script from `scripts/`. 
+
+This script loads data from CSV files into the database, simulating the addition of new data each week.

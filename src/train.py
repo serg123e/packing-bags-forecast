@@ -90,7 +90,7 @@ def train_model(df_filtered, target_column, hub_id, features):
             device=DEVICE,
         )
         # model = mlflow.pyfunc.load_model('/home/sir/farmy/ch.farmy.scinode/development/9631-update/mlruns/8/dfeb8badb69c493d91fab39c78c9999e/artifacts/model')
-    else:
+    else:  # cold_bags
         params = {
             'colsample_bytree': 0.9332506592696221,
             'gamma': 0.33126595740822656,

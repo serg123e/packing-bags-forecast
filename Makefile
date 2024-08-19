@@ -21,11 +21,11 @@ hpo:    prepare
 	pipenv run python src/hpo_randomforest.py
 
 predict:
-	pipenv run python steps/predict.py
+	pipenv run python src/predict.py
 
 
 validate: ingest
-	pipenv run python steps/validate.py
+	pipenv run python src/validate.py
 
 test:
 	pipenv run pytest tests
